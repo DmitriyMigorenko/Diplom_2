@@ -29,7 +29,7 @@ public class UserHelper {
     public Response loginUser() {
         return given().log().all()
                 .spec(ConfigUser.spec())
-                .body(user)
+                .body(userLogin)
                 .when().post("/login");
     }
 

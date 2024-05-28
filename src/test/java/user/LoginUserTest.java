@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 
 import static org.hamcrest.CoreMatchers.*;
 
-public class CreateUserTest {
+public class LoginUserTest {
 
     private User userForCreate;
     private User userForLogin;
@@ -25,11 +25,12 @@ public class CreateUserTest {
     }
 
     @Test
-    @DisplayName("Create user happy path")
-    public void createUser() {
+    @DisplayName("Login user happy path")
+    public void loginUser() {
         userHelper.setUser(userForCreate);
         userHelper.setUserLogin(userForLogin);
-        userHelper.createUser()
+        userHelper.createUser();
+        userHelper.loginUser()
                 .then().log().all()
                 .assertThat()
                 .statusCode(HttpURLConnection.HTTP_OK)
@@ -38,30 +39,17 @@ public class CreateUserTest {
     }
 
     @Test
-    @DisplayName("Create duplicate user")
-    public void createTheSameUser() {
+    @DisplayName("Login user with wrong data")
+    public void loginUserWithIncorrectData() {
         userHelper.setUser(userForCreate);
-        userHelper.setUserLogin(userForLogin);
+        userHelper.setUserLogin(new User("Login", "pass"));
         userHelper.createUser();
-        userHelper.createUser()
+        userHelper.loginUser()
                 .then().log().all()
                 .assertThat()
-                .statusCode(HttpURLConnection.HTTP_FORBIDDEN)
+                .statusCode(HttpURLConnection.HTTP_UNAUTHORIZED)
                 .and()
-                .body("message", equalTo("User already exists"));
-    }
-
-    @Test
-    @DisplayName("Create user with empty body request")
-    public void createInvalidUser() {
-        userHelper.setUser(new User());
-        userHelper.setUserLogin(new User());
-        userHelper.createUser()
-                .then().log().all()
-                .assertThat()
-                .statusCode(HttpURLConnection.HTTP_FORBIDDEN)
-                .and()
-                .body("message", equalTo("Email, password and name are required fields"));
+                .body("success", equalTo(false));
     }
 
     @After
