@@ -13,7 +13,6 @@ import static io.restassured.RestAssured.given;
 public class UserHelper {
     private User user;
     private User userLogin;
-    private String token;
 
 
     @Step("Create user")
@@ -44,7 +43,7 @@ public class UserHelper {
     }
 
     @Step("Update user with token")
-    public Response updateUserWithToken() {
+    public Response updateUserWithToken(String token) {
         return given().log().all()
                 .spec(ConfigUser.spec())
                 .header("Authorization", token)
