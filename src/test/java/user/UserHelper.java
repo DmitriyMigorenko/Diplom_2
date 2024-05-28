@@ -1,53 +1,43 @@
 package user;
 
+import config.ConfigUser;
 import io.qameta.allure.Step;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import io.restassured.response.ValidatableResponse;
 import lombok.Setter;
-import org.junit.Before;
 
 
-import java.net.HttpURLConnection;
-
-import static constants.Endpoints.*;
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.given;
 
 
 @Setter
 public class UserHelper {
-
     private User user;
+    private User userLogin;
     private String token;
 
-    @Before
-    public void setUp() {
-        RestAssured.baseURI = BASE_URI;
-        RestAssured.basePath = API_AUTH;
-    }
 
     @Step("Create user")
     public Response createUser() {
-        return given()
-                .contentType(ContentType.JSON)
+        return given().log().all()
+                .spec(ConfigUser.spec())
                 .body(user)
-                .when().post("/register");
+                .when()
+                .post("/register");
     }
 
     @Step("Login user")
     public Response loginUser() {
-        return given()
-                .contentType(ContentType.JSON)
+        return given().log().all()
+                .spec(ConfigUser.spec())
                 .body(user)
                 .when().post("/login");
     }
 
     @Step("Get accessToken")
-    public Response getAccessToken() {
-        return given()
-                .contentType(ContentType.JSON)
-                .body(user)
+    public String getAccessToken() {
+        return given().log().all()
+                .spec(ConfigUser.spec())
+                .body(userLogin)
                 .when().post("/login")
                 .then()
                 .extract().path("accessToken");
@@ -55,8 +45,8 @@ public class UserHelper {
 
     @Step("Update user with token")
     public Response updateUserWithToken() {
-        return given()
-                .contentType(ContentType.JSON)
+        return given().log().all()
+                .spec(ConfigUser.spec())
                 .header("Authorization", token)
                 .body(user)
                 .when().patch("/user");
@@ -64,19 +54,19 @@ public class UserHelper {
 
     @Step("Update user without token")
     public Response updateUserWithoutToken() {
-        return given()
-                .contentType(ContentType.JSON)
+        return given().log().all()
+                .spec(ConfigUser.spec())
                 .body(user)
                 .when().patch("/user");
     }
 
     @Step("Delete user")
-    public ValidatableResponse deleteUser() {
-        return given()
-                .contentType(ContentType.JSON)
-                .header("Authorization", token)
-                .when().delete("/user")
-                .then()
-                .assertThat().statusCode(HttpURLConnection.HTTP_ACCEPTED);
+    public void deleteUser() {
+        String accessToken = getAccessToken();
+        if (accessToken != null)
+            given().log().all()
+                    .spec(ConfigUser.spec())
+                    .header("Authorization", accessToken)
+                    .delete("/user");
     }
 }
