@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import static io.restassured.RestAssured.given;
 
-
 @Setter
 public class UserHelper {
     private User user;

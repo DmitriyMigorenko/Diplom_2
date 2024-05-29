@@ -1,30 +1,24 @@
 package order;
 
+import config.ConfigOrder;
 import io.qameta.allure.Step;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import lombok.Setter;
-import org.junit.Before;
 
-import static constants.Endpoints.*;
-import static io.restassured.RestAssured.*;
+
+import java.util.List;
+
+import static io.restassured.RestAssured.given;
 
 @Setter
 public class OrderHelper {
 
     private Order order;
 
-    @Before
-    public void setUp() {
-        RestAssured.baseURI = BASE_URI;
-        RestAssured.basePath = API_ORDERS;
-    }
-
     @Step("Create order with token")
     public Response createOrderWithToken(String token) {
-        return given()
-                .contentType(ContentType.JSON)
+        return given().log().all()
+                .spec(ConfigOrder.specForOrder())
                 .header("Authorization", token)
                 .body(order)
                 .when().post();
@@ -32,24 +26,33 @@ public class OrderHelper {
 
     @Step("Create order without token")
     public Response createOrderWithoutToken() {
-        return given()
-                .contentType(ContentType.JSON)
+        return given().log().all()
+                .spec(ConfigOrder.specForOrder())
                 .body(order)
                 .with().post();
     }
 
     @Step("Get orders for user with token")
     public Response getUserOrders(String token) {
-        return given()
-                .contentType(ContentType.JSON)
+        return given().log().all()
+                .spec(ConfigOrder.specForOrder())
                 .header("Authorization", token)
                 .when().get();
     }
 
     @Step("Get orders without token")
     public Response getOrdersWithoutToken() {
-        return given()
-                .contentType(ContentType.JSON)
+        return given().log().all()
+                .spec(ConfigOrder.specForOrder())
                 .when().get();
+    }
+
+    @Step("Get ingredients")
+    public List<String> getIngredients(){
+        return given().log().all()
+                .spec(ConfigOrder.specForIngredients())
+                .when().get()
+                .then()
+                .extract().path("data._id");
     }
 }

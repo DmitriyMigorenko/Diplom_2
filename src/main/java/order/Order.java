@@ -2,15 +2,17 @@ package order;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class Order {
-    private String[] ingredients;
 
-    public Order(String[] ingredients) {
+    private List<String> ingredients;
+
+    public Order(List<String> ingredients) {
         this.ingredients = ingredients;
     }
 
     public Order() {
     }
-
 }
